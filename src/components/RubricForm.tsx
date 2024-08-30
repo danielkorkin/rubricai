@@ -210,7 +210,7 @@ const RubricForm: React.FC = () => {
 					{results.split("###").map((result, index) => {
 						// Extracting each section using regex to match the required pattern
 						const match = result.match(
-							/Category:\s*(.*?)\s*Score:\s*(.*?)\s*Summary:\s*(.*?)\s*Rating:\s*(.*?)\s*Tips for Improvement:\s*(.*)/s
+							/Category:\s*([\s\S]*?)\s*Score:\s*([\s\S]*?)\s*Summary:\s*([\s\S]*?)\s*Rating:\s*([\s\S]*?)\s*Tips for Improvement:\s*([\s\S]*)/
 						);
 
 						// Skip if no valid match is found to avoid "ghost" categories
