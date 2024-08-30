@@ -29,9 +29,14 @@ const RubricForm: React.FC = () => {
 		setResults(null);
 
 		try {
-			const genAI = new GoogleGenerativeAI(
-				process.env.NEXT_PUBLIC_GCP_AI_API_KEY
-			);
+			const apiKey = process.env.NEXT_PUBLIC_GCP_AI_API_KEY;
+			if (!apiKey) {
+				throw new Error(
+					"Google API key is not defined. Please check your environment variables."
+				);
+			}
+
+			const genAI = new GoogleGenerativeAI(apiKey);
 			const model = genAI.getGenerativeModel({
 				model: "gemini-1.5-flash",
 			});
