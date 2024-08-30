@@ -2,6 +2,7 @@ import "./globals.css";
 import React from "react";
 import { Inter } from "next/font/google";
 import Image from "next/image";
+import { Analytics } from "@vercel/analytics/react"
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -31,6 +32,7 @@ export default function RootLayout({
 						<h1 className="text-xl font-bold">Rubricai</h1>
 					</header>
 					<main className="flex-1 p-4">{children}</main>
+					<Analytics />
 					<footer className="bg-black text-white text-center p-4 mt-auto">
 						&copy; {new Date().getFullYear()} Rubricai. All rights
 						reserved.
