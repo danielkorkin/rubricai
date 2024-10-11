@@ -49,7 +49,6 @@ const RubricForm: React.FC = () => {
         Category: [Category Name]
         Score: [Score/Total Points] (e.g., 28/30 or N/A if not applicable)
         Summary: [Provide a brief summary of the evaluation for this category]
-        Rating: [Rating/Comment if available or N/A]
         Tips for Improvement: [Specific tips for improvement or N/A]
 
         Ensure that each category summary is separated by "###" to clearly distinguish between different categories. Do not include any empty categories or placeholders.`;
@@ -210,7 +209,7 @@ const RubricForm: React.FC = () => {
 					{results.split("###").map((result, index) => {
 						// Extracting each section using regex to match the required pattern
 						const match = result.match(
-							/Category:\s*([\s\S]*?)\s*Score:\s*([\s\S]*?)\s*Summary:\s*([\s\S]*?)\s*Rating:\s*([\s\S]*?)\s*Tips for Improvement:\s*([\s\S]*)/
+							/Category:\s*([\s\S]*?)\s*Score:\s*([\s\S]*?)\s*Summary:\s*([\s\S]*?)\s*Tips for Improvement:\s*([\s\S]*)/
 						);
 
 						// Skip if no valid match is found to avoid "ghost" categories
@@ -221,8 +220,7 @@ const RubricForm: React.FC = () => {
 						const category = match?.[1] ?? `Category ${index + 1}`;
 						const score = match?.[2] ?? "N/A";
 						const summary = match?.[3] ?? "";
-						const rating = match?.[4] ?? "N/A";
-						const tips = match?.[5] ?? "N/A";
+						const tips = match?.[4] ?? "N/A";
 
 						return (
 							<Card key={index}>
@@ -235,9 +233,6 @@ const RubricForm: React.FC = () => {
 									</p>
 									<p>
 										<strong>Summary:</strong> {summary}
-									</p>
-									<p>
-										<strong>Rating:</strong> {rating}
 									</p>
 									<p>
 										<strong>Tips for Improvement:</strong>{" "}
