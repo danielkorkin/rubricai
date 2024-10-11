@@ -42,16 +42,16 @@ const RubricForm: React.FC = () => {
 			});
 
 			const prompt = `
-        You are an AI that summarizes rubric assessments. The rubric categories are: ${rubricInput}. The text to assess is: ${textInput}. The grade level is ${gradeLevel} and the class level is ${classLevel}.
-        
-        Please provide a summary of each category following this exact format:
-        
-        Category: [Category Name]
-        Score: [Score/Total Points] (e.g., 28/30 or N/A if not applicable)
-        Summary: [Provide a brief summary of the evaluation for this category]
-        Tips for Improvement: [Specific tips for improvement or N/A]
+            You are an AI that summarizes rubric assessments. The rubric categories are: ${rubricInput}. The text to assess is: ${textInput}. The grade level is ${gradeLevel} and the class level is ${classLevel}.
+            
+            Please provide a summary of each category following this exact format:
+            
+            Category: [Category Name]
+            Score: [Score/Total Points] (e.g., 28/30 or N/A if not applicable)
+            Summary: [Provide a brief summary of the evaluation for this category]
+            Tips for Improvement: [Specific tips for improvement or N/A]
 
-        Ensure that each category summary is separated by "###" to clearly distinguish between different categories. Do not include any empty categories or placeholders.`;
+            Ensure that each category summary is separated by "###" to clearly distinguish between different categories. Do not include any empty categories or placeholders.`;
 
 			const result = await model.generateContent(prompt);
 
@@ -193,7 +193,6 @@ const RubricForm: React.FC = () => {
 					</form>
 				</CardContent>
 			</Card>
-
 			{/* Error Message */}
 			{error && (
 				<Card className="mb-6 border-red-500 bg-red-50">
@@ -202,14 +201,16 @@ const RubricForm: React.FC = () => {
 					</CardContent>
 				</Card>
 			)}
-
 			{/* Results */}
-			{results && (
-				<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-					{results.split("###").map((result, index) => {
+			{results &&
+				(() => {
+					let totalScore = 0;
+					let totalPossibleScore = 0;
+
+					const cards = results.split("###").map((result, index) => {
 						// Extracting each section using regex to match the required pattern
 						const match = result.match(
-							/Category:\s*([\s\S]*?)\s*Score:\s*([\s\S]*?)\s*Summary:\s*([\s\S]*?)\s*Tips for Improvement:\s*([\s\S]*)/
+							/Category:\s*([\s\S]*?)\s*Score:\s*([\s\S]*?)\s*Summary:\s*([\s\S]*?)\s*Tips for Improvement:\s*([\s\S]*)/i
 						);
 
 						// Skip if no valid match is found to avoid "ghost" categories
@@ -221,6 +222,22 @@ const RubricForm: React.FC = () => {
 						const score = match?.[2] ?? "N/A";
 						const summary = match?.[3] ?? "";
 						const tips = match?.[4] ?? "N/A";
+
+						// Parse the score and update totals
+						if (score !== "N/A") {
+							const scoreParts = score.split("/");
+							if (scoreParts.length === 2) {
+								const givenScore = parseFloat(scoreParts[0]);
+								const possibleScore = parseFloat(scoreParts[1]);
+								if (
+									!isNaN(givenScore) &&
+									!isNaN(possibleScore)
+								) {
+									totalScore += givenScore;
+									totalPossibleScore += possibleScore;
+								}
+							}
+						}
 
 						return (
 							<Card key={index}>
@@ -241,9 +258,29 @@ const RubricForm: React.FC = () => {
 								</CardContent>
 							</Card>
 						);
-					})}
-				</div>
-			)}
+					});
+
+					return (
+						<>
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+								{cards}
+							</div>
+							{totalPossibleScore > 0 && (
+								<Card className="mt-6">
+									<CardHeader>
+										<CardTitle>Final Score</CardTitle>
+									</CardHeader>
+									<CardContent>
+										<p>
+											<strong>Combined Score:</strong>{" "}
+											{totalScore}/{totalPossibleScore}
+										</p>
+									</CardContent>
+								</Card>
+							)}
+						</>
+					);
+				})()}
 		</div>
 	);
 };
