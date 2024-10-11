@@ -42,16 +42,16 @@ const RubricForm: React.FC = () => {
 			});
 
 			const prompt = `
-            You are an AI that summarizes rubric assessments. The rubric categories are: ${rubricInput}. The text to assess is: ${textInput}. The grade level is ${gradeLevel} and the class level is ${classLevel}.
-            
-            Please provide a summary of each category following this exact format:
-            
-            Category: [Category Name]
-            Score: [Score/Total Points] (e.g., 28/30 or N/A if not applicable)
-            Summary: [Provide a brief summary of the evaluation for this category]
-            Tips for Improvement: [Specific tips for improvement or N/A]
+                You are an AI that summarizes rubric assessments. The rubric categories are: ${rubricInput}. The text to assess is: ${textInput}. The grade level is ${gradeLevel} and the class level is ${classLevel}.
+                
+                Please provide a summary of each category following this exact format:
+                
+                Category: [Category Name]
+                Score: [Score/Total Points] (e.g., 28/30 or N/A if not applicable)
+                Summary: [Provide a brief summary of the evaluation for this category]
+                Tips for Improvement: [Specific tips for improvement or N/A]
 
-            Ensure that each category summary is separated by "###" to clearly distinguish between different categories. Do not include any empty categories or placeholders.`;
+                Ensure that each category summary is separated by "###" to clearly distinguish between different categories. Do not include any empty categories or placeholders.`;
 
 			const result = await model.generateContent(prompt);
 
@@ -206,6 +206,7 @@ const RubricForm: React.FC = () => {
 				(() => {
 					let totalScore = 0;
 					let totalPossibleScore = 0;
+					let allTips: string[] = [];
 
 					const cards = results.split("###").map((result, index) => {
 						// Extracting each section using regex to match the required pattern
@@ -239,6 +240,11 @@ const RubricForm: React.FC = () => {
 							}
 						}
 
+						// Collect tips
+						if (tips && tips.trim() !== "N/A") {
+							allTips.push(tips.trim());
+						}
+
 						return (
 							<Card key={index}>
 								<CardHeader>
@@ -260,6 +266,42 @@ const RubricForm: React.FC = () => {
 						);
 					});
 
+					// Calculate percentage and letter grade
+					let percentage = 0;
+					let letterGrade = "N/A";
+					if (totalPossibleScore > 0) {
+						percentage = (totalScore / totalPossibleScore) * 100;
+
+						// Determine letter grade
+						if (percentage >= 97) {
+							letterGrade = "A+";
+						} else if (percentage >= 93) {
+							letterGrade = "A";
+						} else if (percentage >= 90) {
+							letterGrade = "A-";
+						} else if (percentage >= 87) {
+							letterGrade = "B+";
+						} else if (percentage >= 83) {
+							letterGrade = "B";
+						} else if (percentage >= 80) {
+							letterGrade = "B-";
+						} else if (percentage >= 77) {
+							letterGrade = "C+";
+						} else if (percentage >= 73) {
+							letterGrade = "C";
+						} else if (percentage >= 70) {
+							letterGrade = "C-";
+						} else if (percentage >= 67) {
+							letterGrade = "D+";
+						} else if (percentage >= 63) {
+							letterGrade = "D";
+						} else if (percentage >= 60) {
+							letterGrade = "D-";
+						} else {
+							letterGrade = "F";
+						}
+					}
+
 					return (
 						<>
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -274,6 +316,14 @@ const RubricForm: React.FC = () => {
 										<p>
 											<strong>Combined Score:</strong>{" "}
 											{totalScore}/{totalPossibleScore}
+										</p>
+										<p>
+											<strong>Percentage:</strong>{" "}
+											{percentage.toFixed(2)}%
+										</p>
+										<p>
+											<strong>Letter Grade:</strong>{" "}
+											{letterGrade}
 										</p>
 									</CardContent>
 								</Card>
